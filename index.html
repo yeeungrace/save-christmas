@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <script>
+  (function(d) {
+    var config = {
+      kitId: 'obm0vli',
+      scriptTimeout: 3000,
+      async: true
+    },
+    h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
+  })(document);
+</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save Christmas</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background-image: url('background.jpg'); 
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            font-family: sandoll-achim, sans-serif;
+        }
+
+        #start-screen, #game-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+.typewriter {
+    display: flex; /* Flexbox 사용 */
+    justify-content: center; /* 수평 중앙 정렬 */
+    align-items: center; /* 수직 중앙 정렬 */
+    height: auto; /* 높이 조정 */
+}
+
+.typewriter h2 {
+    text-align: center; /* 텍스트 중앙 정렬 */
+    width: 55%; /* 너비 설정 */
+    font-size: 1rem; /* 폰트 크기 설정 */
+}
+         #start-button {
+            background: black;
+            padding: 10px 30px;
+            color: white;
+            font-style: normal;
+            font-family: sandoll-achim, sans-serif;
+            border-radius: 50%;
+        }
+               
+         #game-screen {
+            display: none;
+            position: relative;
+        }
+
+        #game-rule {
+            align-content: center;
+        }
+
+        #tree {
+            width: auto;
+            height: 80%; /* 트리 이미지 크기를 80%로 키움 */
+            position: relative;
+        }
+
+        #fairy {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 100px;
+            width: auto;
+        }
+
+        .ornament {
+            position: absolute;
+            height: 40px;
+            width: auto;   
+        }
+
+
+    </style>
+</head>
+<body>
+
+<audio id="game-music" src="start-music.mp3" loop></audio>
+
+<div id="start-screen">
+    <h1>크리스마스를 지켜줘!</h1>
+     <div class="typewriter">
+        <h2 id="typewriter-text">크리스마스엔 트리가 빠질 수 없지! 떨어지는 장식을 잡아 크리스마스를 완벽하게 보낼 수 있게 도와줘★</h2>
+    </div>
+   
+    <button id="start-button">시작하기</button>
+</div>
+
+<div id="game-screen">
+    <img id="tree" src="christmas-tree.png" alt="christmas-tree">
+    <img id="fairy" src="fairy.png" alt="fairy">
+</div>
+
+<script>
+document.getElementById('start-button').addEventListener('click', startGame);
+
+const fairy = document.getElementById('fairy');
+let ornaments = [];
+let score = 0;
+
+const startMusic = document.getElementById('start-music');
+const gameMusic = document.getElementById('game-music');
+
+//Play start music when the page loads
+window.onload = function(){
+    startMusic.play();
+}
+
+function startGame() {
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'flex';
+
+    gameMusic.play();
+
+    startOrnaments();
+    handleMovement();
+}
+
+function startOrnaments() {
+    for (let i = 0; i < 8; i++) {
+        const ornament = document.createElement('img');
+        ornament.src = 'ornaments.png';
+        ornament.style.innerwidth = 100%
+        ornament.classList.add('ornament');
+        const {x, y} = generatePositionInTree(); // 트리 안의 좌표 생성
+        ornament.style.left = `${x}px`;
+        ornament.style.top = `${y}px`;
+        ornaments.push(ornament);
+        document.getElementById('game-screen').appendChild(ornament);
+        setTimeout(() => dropOrnament(ornament), i * 1500); // 1.5초 간격으로 떨어짐
+    }
+}
+
+
+function generatePositionInTree() {
+    const treeElement = document.getElementById('tree');
+    const treeRect = treeElement.getBoundingClientRect();
+    
+    // 트리 내부 좌표 설정 (트리의 중앙에서 좌우로 최대 너비 범위에서만 좌표가 생기도록)
+    const xMin = treeRect.left + (treeRect.width * 0.2); // 트리의 왼쪽에서부터 일정 거리
+    const xMax = treeRect.right - (treeRect.width * 0.2); // 트리의 오른쪽에서 일정 거리
+    const yMin = treeRect.top + (treeRect.height * 0.2); // 트리의 상단에서 일정 거리
+    const yMax = treeRect.bottom - (treeRect.height * 0.1); // 트리 하단에서 일정 거리
+    
+    // 이 범위 내에서 랜덤 좌표 생성
+    const x = Math.random() * (xMax - xMin) + xMin;
+    const y = Math.random() * (yMax - yMin) + yMin;
+
+    return {x, y};
+}
+
+function dropOrnament(ornament) {
+    let top = parseInt(ornament.style.top);
+    const dropInterval = setInterval(() => {
+        top += 2;
+        ornament.style.top = `${top}px`;
+
+        if (checkCollision(ornament)) {
+            playSound('yay.mp3');
+            score++;
+            document.getElementById('game-screen').removeChild(ornament); // 장식 제거
+            ornaments = ornaments.filter(o => o !== ornament); // 장식 배열에서 제거
+            
+            if (score === 8) { // 5개 잡으면 게임 종료
+                endGame(true);
+            }
+
+            clearInterval(dropInterval); // 충돌 시 떨어지는 것을 멈춤
+        }
+
+        if (top > window.innerHeight - 50) {
+            endGame(false); // 장식이 바닥에 닿으면 게임 종료
+            clearInterval(dropInterval);
+        }
+    }, 50);
+}
+
+function checkCollision(ornament) {
+    const fairyRect = fairy.getBoundingClientRect();
+    const ornamentRect = ornament.getBoundingClientRect();
+    return !(fairyRect.right < ornamentRect.left ||
+             fairyRect.left > ornamentRect.right ||
+             fairyRect.bottom < ornamentRect.top ||
+             fairyRect.top > ornamentRect.bottom);
+}
+
+function handleMovement() {
+    window.addEventListener('keydown', (e) => {
+        let left = parseInt(window.getComputedStyle(fairy).left);
+        if (e.key === 'ArrowLeft' && left > 0) {
+            left -= 30;
+            fairy.style.left = `${left}px`;
+            fairy.style.transform = 'scaleX(1)'; // 왼쪽 이동 시 반전되지 않음
+        } else if (e.key === 'ArrowRight' && left < window.innerWidth - 50) {
+            left += 30;
+            fairy.style.left = `${left}px`;
+            fairy.style.transform = 'scaleX(-1)'; // 오른쪽 이동 시 반전
+        }
+    });
+}
+
+function endGame(success) {
+      gameMusic.pause();
+    gameMusic.currentTime = 0;
+    if (success && score === 8) { // 5개를 모두 잡았을 때만 게임 성공 메시지
+        alert('크리스마스를 지켰어요! 메리크리스마스 ♡⁺◟(●˙▾˙●)◞⁺♡');
+    } else if (!success) {
+        alert('아쉽게도 트리를 지켜내지 못했어요');
+    }
+    document.location.reload(); // 게임을 다시 시작
+}
+
+function playSound(src) {
+    const audio = new Audio(src);
+    audio.play();
+}
+</script>
+
+</body>
+</html>
